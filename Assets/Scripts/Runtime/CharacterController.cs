@@ -40,6 +40,7 @@ public class CharacterController : MonoBehaviour
     {
         GetInput();
         FlipPlayer();
+        GroundCheck();
         Jumping();
     }
 
@@ -62,7 +63,6 @@ public class CharacterController : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
-        GroundCheck();
     }
 
     private void Movement()
