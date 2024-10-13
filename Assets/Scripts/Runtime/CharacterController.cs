@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,8 +39,26 @@ public class CharacterController : MonoBehaviour
     private void Update()
     {
         GetInput();
+        FlipPlayer();
         Jumping();
     }
+
+    private void FlipPlayer()
+    {
+        if (moveInput == 0) return;
+        Vector3 currentScale = transform.localScale;
+        if(moveInput > 0 && currentScale.x < 0)
+        {
+            currentScale.x *= -1;
+            transform.localScale = currentScale;
+        }
+        else if(moveInput < 0 && currentScale.x > 0)
+        {
+            currentScale.x *= -1;
+            transform.localScale = currentScale;
+        }
+    }
+
     private void FixedUpdate()
     {
         Movement();
