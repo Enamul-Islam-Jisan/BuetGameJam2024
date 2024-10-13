@@ -5,7 +5,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
-public class CharacterController : MonoBehaviour
+public class PlayerController : SingletonMonoBehaviour<PlayerController>
 {
     [field: SerializeField, Range(0, 10)]
     public float MoveSpeed { get; private set; } = 1f;
