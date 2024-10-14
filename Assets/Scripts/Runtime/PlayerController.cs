@@ -11,8 +11,6 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     public float MoveSpeed { get; private set; } = 1f;
     [field: SerializeField, Range(0, 10)]
     public float JumpForce { get; private set; } = 1f;
-    [field: SerializeField, Range(0, 3)]
-    public int MaxConCurrentJump { get; private set; } = 1;
 
 
     [Header("Ground Check")]
@@ -29,18 +27,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     private float moveInput;
     private bool jumped = false;
     private bool isGrounded = false;
-    private bool groundCheckEnabled = true;
-    private float groundCheckTimer;
-    private int jumpCount;
-
-    public static event Action ready;
-    public event Action died;
-
+    public event Action onHit;
 
     protected override void Awake()
     {
         base.Awake();
-        ready?.Invoke();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -50,10 +41,6 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         FlipPlayer();
         GroundCheck();
         Jumping();
-    }
-    private void LateUpdate()
-    {
-        
     }
 
     private void FlipPlayer()
@@ -87,35 +74,17 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
     private void GroundCheck()
     {
-        if (!groundCheckEnabled && groundCheckTimer > 0)
-        {
-            groundCheckTimer -= Time.deltaTime;
-            if (groundCheckTimer <= 0)
-            {
-                groundCheckTimer = 0;
-                groundCheckEnabled = true;
-            }
-        }
-        isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer) && groundCheckEnabled;
+        isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer);
     }
 
 
     private void Jumping()
     {
-        if (MaxConCurrentJump < 0) return;
-        if (jumpCount > 0 && isGrounded || jumpCount >= MaxConCurrentJump)
-        {
-            jumpCount = 0;
-            return;
-        }
         if (!jumped) return;
-        if (jumpCount == 0 && !isGrounded) return;
+        if (!isGrounded) return;
         Vector2 currentVelocity = rb.velocity;
         currentVelocity.y = JumpForce;
         rb.velocity = currentVelocity;
-        jumpCount++;
-        groundCheckEnabled = false;
-        groundCheckTimer = 0.15f;
     }
 
     private void GetInput()
@@ -123,20 +92,15 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         moveInput = Input.GetAxisRaw("Horizontal");
         jumped = Input.GetButtonDown("Jump");
     }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Pit"))
-        {
-            died?.Invoke();
-        }
-    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Obstacle"))
         {
-            died?.Invoke();
+            onHit?.Invoke();
         }
     }
+
     private void OnDrawGizmosSelected()
     {
         if (groundCheck)

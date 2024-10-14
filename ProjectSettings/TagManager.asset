@@ -6,7 +6,7 @@ TagManager:
   tags:
   - Ground
   - Obstacle
-  - Pit
+  - Crypt
   - PlayerCamera
   layers:
   - Default
@@ -17,7 +17,7 @@ TagManager:
   - UI
   - Ground
   - Player
-  - 
+  - Ghost
   - 
   - 
   - 

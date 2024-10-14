@@ -164,8 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MoveSpeed>k__BackingField: 4
-  <JumpForce>k__BackingField: 8
-  <MaxConCurrentJump>k__BackingField: 2
+  <JumpForce>k__BackingField: 10
   groundCheckRadius: 0.2
   groundLayer:
     serializedVersion: 2
