@@ -7,8 +7,7 @@ using UnityEngine;
 public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
     [SerializeField]
-    private PlayerController playerPrefab;
-    public PlayerController Player { get; private set; }
+    private PlayerController player;
     public Status status { get; private set; } = Status.None;
 
     public static event StatusUpdated statusUpdated;
@@ -49,7 +48,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     private void SpawnPlayer()
     {
-        Player = Instantiate(playerPrefab);
+        player = Instantiate(player);
     }
 
     public void SetPause(bool pause)
