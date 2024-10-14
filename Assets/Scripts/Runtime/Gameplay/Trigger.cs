@@ -1,23 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class DoorTrigger : MonoBehaviour
+public class Trigger : MonoBehaviour
 {
     [SerializeField]
-    private GameObject doorObject;
-
-    public void Open()
-    {
-        doorObject.SetActive(false);
-    }
+    private UnityEvent onTrigger;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ghost"))
         {
-            Open();
-            enabled = false;
+            onTrigger?.Invoke();
+            Destroy(this);
         }
     }
 }
