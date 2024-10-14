@@ -6,7 +6,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class Level : MonoBehaviour
 {
+    [field:SerializeField]
+    public Collider2D CameraBound { get; private set; }
     internal IEnumerable<Checkpoint> Points { get; private set; }
+
 
     private void Awake()
     {

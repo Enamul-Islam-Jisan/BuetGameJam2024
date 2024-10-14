@@ -1,3 +1,4 @@
+using Cinemachine;
 using DG.Tweening;
 using System;
 using System.Collections;
@@ -15,6 +16,9 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private PlayerController player;
     [SerializeField]
     private GameObject ghostPrefab;
+    [SerializeField]
+    private CinemachineVirtualCamera playerCamera;
+    private CinemachineConfiner2D playerCameraBoundHandler;
     private Transform ghostContainer;
     private ObjectPool<GameObject> ghostPool;
     private Queue<GameObject> activeGhosts = new Queue<GameObject>();
@@ -37,6 +41,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         base.Awake();
         currentLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0);
         levels = GetComponentsInChildren<Level>(true);
+        playerCameraBoundHandler = playerCamera.GetComponent<CinemachineConfiner2D>();
     }
 
     private void Start()
@@ -110,6 +115,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         }, Destroy, maxSize: 10);
         player = Instantiate(player);
         player.gameObject.SetActive(false);
+        playerCamera.Follow = player.transform;
         player.died += Failed;
     }
 
@@ -168,6 +174,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         currentLevel = levels.ElementAtOrDefault(currentLevelIndex);
         currentLevel.gameObject.SetActive(false);
         currentLevel.gameObject.SetActive(true);
+        playerCameraBoundHandler.m_BoundingShape2D = currentLevel.CameraBound;
         levelLoaded?.Invoke(currentLevel);
         UpdateStatus(Status.Started);
         UpdateStatus(Status.Running);
