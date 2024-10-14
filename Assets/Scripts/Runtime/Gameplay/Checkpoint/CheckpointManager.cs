@@ -29,6 +29,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 
     private void CheckpointDetection()
     {
+        if (!isEnabled) return;
         for (int i = currentIndex; i < points.Count(); i++)
         {
             if(i > currentIndex)
@@ -112,6 +113,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         points = level.Points;
         currentIndex = 0;
         playerTransform = Gameplay.Instance.player.transform;
+        isEnabled = true;
         GoToCurrent();
     }
 

@@ -96,6 +96,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     public void LoadCurrentLevel()
     {
         currentLevel = levels.ElementAtOrDefault(currentLevelIndex);
+        if (!currentLevel) return;
         currentLevel.gameObject.SetActive(false);
         currentLevel.gameObject.SetActive(true);
         playerCameraBoundHandler.m_BoundingShape2D = currentLevel.CameraBound;
