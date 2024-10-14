@@ -35,7 +35,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     protected override void Awake()
     {
         base.Awake();
-        //currentLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0);
+        currentLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0);
         levels = GetComponentsInChildren<Level>(true);
     }
 
@@ -159,7 +159,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         {
             prevLevel.gameObject.SetActive(false);
         }
-        Debug.Log(currentLevelIndex);
+        UnityEngine.Analytics.Analytics.SendEvent("levelCompleted", new Dictionary<string, object>() { { "levelCompleted", currentLevelIndex + 1 } });
         LoadCurrentLevel();
     }
 
