@@ -84,23 +84,26 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     public Checkpoint GoForward(int count)
     {
         int destinationIndex = currentIndex + count;
-        if (destinationIndex >= points.Count) 
+        if (destinationIndex >= points.Count)
+        {
             destinationIndex = points.Count - 1;
+            if (destinationIndex == currentIndex)
+                return GoToCurrent();
+        }
         currentIndex = destinationIndex;
         Checkpoint targetPoint = points.ElementAtOrDefault(currentIndex);
         targetPoint.MarkStarting();
         if (currentIndex > 0)
         {
-            IEnumerable<Checkpoint> unrechedPoints = points.Take(currentIndex).Where(c => !c.HasReached);
-            foreach (Checkpoint point in unrechedPoints)
+            IEnumerable<Checkpoint> unreachedPoints = points.Take(currentIndex).Where(c => !c.HasReached);
+            foreach (Checkpoint point in unreachedPoints)
             {
                 point.MarkReached();
                 reachedPoints.Add(point);
             }
         }
         reachedPoints.Add(targetPoint);
-        player.transform.position = targetPoint.transform.position;
-        return targetPoint;
+        return GoToCurrent();
     }
     public Checkpoint GoToCurrent()
     {
@@ -125,9 +128,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
             }
         }
         currentIndex = destinationIndex;
-        Checkpoint targetPoint = points.ElementAtOrDefault(currentIndex);
-        player.transform.position = targetPoint.transform.position;
-        return targetPoint;
+        return GoToCurrent();
     }
 
     private void Disable()

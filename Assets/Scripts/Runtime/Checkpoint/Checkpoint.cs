@@ -29,10 +29,8 @@ public class Checkpoint : MonoBehaviour
 
     internal void Clear()
     {
-        Debug.Log(HasReached);
         if (!HasReached) return;
         HasReached = false;
-        Debug.Log(HasReached);
         cleared?.Invoke();
     }
 
