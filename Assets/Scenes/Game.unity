@@ -703,7 +703,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   checkRadius: 0.2
-  backwardSkipAmountOnFail: 0
+  backwardSkipAmountOnFail: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -819,7 +819,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3e5a40b0e417b1499b4228b6f52016f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxConCurrentGhost: 2
   player: {fileID: 5368287191552806382, guid: 5632601f01a79074486ab99c3c088014, type: 3}
+  ghostPrefab: {fileID: 6682901181397145078, guid: d0221eda386fd374d971fc379215ecdb, type: 3}
+  obstacleRevealer: {fileID: 175850867274297769, guid: 131e1932ca9a0224da1bfcb892ec6f05, type: 3}
 --- !u!4 &1179237167
 Transform:
   m_ObjectHideFlags: 0

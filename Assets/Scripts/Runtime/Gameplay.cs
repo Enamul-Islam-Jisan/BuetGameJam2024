@@ -2,13 +2,20 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
+    [SerializeField, Range(1,3)]
+    private int maxConCurrentGhost = 1;
     [SerializeField]
     private PlayerController player;
+    [SerializeField]
+    private GameObject ghostPrefab;
+    private Transform ghostContainer;
+    private ObjectPool<GameObject> ghostPool;
+    private Queue<GameObject> activeGhosts = new Queue<GameObject>();
     [SerializeField]
     private GameObject obstacleRevealer;
     private Sequence obstacleRevealAnimation;
@@ -81,6 +88,20 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     private void SpawnPlayer()
     {
+        ghostContainer = new GameObject("Ghosts").transform;
+        ghostPool = new ObjectPool<GameObject>(() =>
+        {
+            GameObject playerGhost = Instantiate(ghostPrefab, ghostContainer);
+            playerGhost.gameObject.SetActive(false);
+            return playerGhost;
+        }, (ghost) =>
+        {
+            ghost.gameObject.SetActive(true);
+            ghost.transform.position = player.transform.position;
+        }, (ghost) =>
+        {
+            ghost.gameObject.SetActive(false);
+        }, Destroy, maxSize: 10);
         player = Instantiate(player);
         player.died += End;
     }
@@ -101,6 +122,11 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     public void End()
     {
         player.gameObject.SetActive(false);
+        if(activeGhosts.Count == maxConCurrentGhost)
+        {
+            ghostPool.Release(activeGhosts.Dequeue());
+        }
+        activeGhosts.Enqueue(ghostPool.Get());
         obstacleRevealer.transform.position = player.transform.position;
         if (obstacleRevealAnimation == null)
         {
@@ -117,6 +143,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     {
         player.died -= End;
         obstacleRevealAnimation.Kill();
+        ghostPool.Dispose();
     }
 
     public enum Status
