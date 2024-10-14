@@ -32,25 +32,18 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         switch (status)
         {
             case Gameplay.Status.Started:
-                Enable();
+
+                if (!player)
+                    player = Gameplay.Instance.Player;
+
+                GoToStart();
                 break;
-            case Gameplay.Status.Ended:
-                Disable();
+            case Gameplay.Status.Running:
+                isEnabled = true;
                 break;
-        }
-    }
-
-    private void Enable()
-    {
-        if (isEnabled) return;
-        isEnabled = true;
-
-        if(!player)
-            player = Gameplay.Instance.Player;
-
-        if (points.Count > 0 )
-        {
-            GoToCurrent();
+            case Gameplay.Status.Paused:
+                isEnabled = false;
+                break;
         }
     }
 
@@ -112,6 +105,11 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         return targetPoint;
     }
 
+    public Checkpoint GoToStart()
+    {
+        return GoBackward(reachedPoints.Count);
+    }
+    
     public Checkpoint GoBackward(int count)
     {
         int destinationIndex = currentIndex - count;
@@ -129,16 +127,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         }
         currentIndex = destinationIndex;
         return GoToCurrent();
-    }
-
-    private void Disable()
-    {
-        if (!isEnabled) return;
-        currentIndex = reachedPoints.Count - 2;
-        if(currentIndex < 0)
-            currentIndex = 0;
-        reachedPoints.Clear();
-        isEnabled = false;
     }
 
     private void OnGUI()
