@@ -34,7 +34,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
             case Gameplay.Status.Started:
 
                 if (!player)
-                    player = Gameplay.Instance.Player;
+                    player = PlayerController.Instance;
 
                 GoToStart();
                 break;
@@ -118,7 +118,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         if (currentIndex > 0)
         {
             IEnumerable<Checkpoint> _reachedPoints = points.Take(currentIndex + 1).TakeLast(count + 1);
-            Debug.Log(_reachedPoints.Count());
             foreach (Checkpoint point in _reachedPoints)
             {
                 point.Clear();
