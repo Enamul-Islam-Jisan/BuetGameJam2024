@@ -6,12 +6,10 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 {
     [SerializeField]
     private float checkRadius = 0.2f;
-    [SerializeField,Range(0,10)]
-    private int backwardSkipAmountOnFail = 0;
     [SerializeField]
     private LayerMask playerLayer;
     private List<Checkpoint> reachedPoints = new List<Checkpoint>();
-    private PlayerController player;
+    private Transform playerTransform;
     private bool isEnabled = false;
     private int currentIndex = 0;
     private IEnumerable<Checkpoint> points;
@@ -19,37 +17,8 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     protected override void Awake()
     {
         base.Awake();
-        Gameplay.statusUpdated += GameplayStatusUpdated;
-        PlayerController.ready += () =>
-        {
-            player = PlayerController.Instance;
-        };
-    }
-
-
-    private void Start()
-    {
-
-    }
-
-    private void GameplayStatusUpdated(Gameplay.Status status)
-    {
-        switch (status)
-        {
-            case Gameplay.Status.Started:
-                LoadCheckPoints();
-                GoToCurrent();
-                break;
-            case Gameplay.Status.Running:
-                isEnabled = true;
-                break;
-            case Gameplay.Status.Paused:
-                isEnabled = false;
-                break;
-            case Gameplay.Status.Failed:
-                GoBackward(backwardSkipAmountOnFail);
-                break;
-        }
+        Gameplay.levelLoaded += LoadCheckPoints;
+        Gameplay.characterReverted += () => GoToCurrent();
     }
 
 
@@ -60,7 +29,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 
     private void CheckpointDetection()
     {
-        if(!isEnabled) return;
         for (int i = currentIndex; i < points.Count(); i++)
         {
             if(i > currentIndex)
@@ -112,7 +80,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     public Checkpoint GoToCurrent()
     {
         Checkpoint targetPoint = points.ElementAtOrDefault(currentIndex);
-        player.transform.position = targetPoint.transform.position;
+        playerTransform.position = targetPoint.transform.position;
         return targetPoint;
     }
 
@@ -139,30 +107,17 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         return GoToCurrent();
     }
 
-    private void LoadCheckPoints()
+    private void LoadCheckPoints(Level level)
     {
-        points = Gameplay.Instance.currentLevel.Points;
+        points = level.Points;
         currentIndex = 0;
+        playerTransform = Gameplay.Instance.player.transform;
+        GoToCurrent();
     }
 
     private void OnDestroy()
     {
-        Gameplay.statusUpdated -= GameplayStatusUpdated;
+        Gameplay.levelLoaded -= LoadCheckPoints;
     }
 
-    private void OnGUI()
-    {
-        if (GUILayout.Button("GO Forward"))
-        {
-            GoForward(1);
-        }
-        if (GUILayout.Button("GO Current"))
-        {
-            GoBackward(0);
-        }
-        if (GUILayout.Button("GO Backward"))
-        {
-            GoBackward(1);
-        }
-    }
 }

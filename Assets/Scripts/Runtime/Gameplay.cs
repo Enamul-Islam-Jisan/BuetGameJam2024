@@ -1,35 +1,36 @@
+using Cinemachine;
 using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
-    [SerializeField, Range(1,3)]
-    private int maxConCurrentGhost = 1;
+    [field:SerializeField]
+    public PlayerController player { get; private set; }
     [SerializeField]
-    private PlayerController player;
+    private GhostController ghost;
     [SerializeField]
-    private GameObject ghostPrefab;
-    private Transform ghostContainer;
-    private ObjectPool<GameObject> ghostPool;
-    private Queue<GameObject> activeGhosts = new Queue<GameObject>();
+    private CinemachineVirtualCamera followCamera;
+    [SerializeField, Range(0,10)]
+    private float revertDuration = 1.0f;
     [SerializeField]
-    private GameObject obstacleRevealer;
-    private Sequence obstacleRevealAnimation;
-    public Status status { get; private set; } = Status.None;
+    private UnityEvent<float> revertTimerOnGoing;
+    private float revertTimer;
+    private CinemachineConfiner2D playerCameraBoundHandler;
     public Level currentLevel { get; private set; }
+    private Transform currentCharacterTransform;
     private Level[] levels;
     private int currentLevelIndex;
 
-    public static event StatusUpdateCallback statusUpdated;
     public static event LevelProgressCallback levelLoaded;
+    public static event Action characterReverted;
 
-    public delegate void StatusUpdateCallback(Status status);
     public delegate void LevelProgressCallback(Level level);
 
     protected override void Awake()
@@ -37,114 +38,43 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         base.Awake();
         currentLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0);
         levels = GetComponentsInChildren<Level>(true);
+        playerCameraBoundHandler = followCamera.GetComponent<CinemachineConfiner2D>();
     }
 
     private void Start()
     {
         SpawnPlayer();
+        SpawnGhost();
         LoadCurrentLevel();
     }
-
-    private void SetupObstacleRevealAnimation()
-    {
-        obstacleRevealer = Instantiate(obstacleRevealer);
-        obstacleRevealer.transform.localScale = Vector3.zero;
-        obstacleRevealAnimation = DOTween.Sequence();
-        obstacleRevealAnimation.SetAutoKill(false);
-        obstacleRevealAnimation.Append(obstacleRevealer.transform.DOScale(8, 1));
-        obstacleRevealAnimation.Append(obstacleRevealer.transform.DOScale(0, 0.5f));
-        obstacleRevealAnimation.onComplete += () =>
-        {
-            UpdateStatus(Status.Failed);
-            UpdateStatus(Status.Running);
-            player.gameObject.SetActive(true);
-        };
-    }
-
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.P))
+        if(revertTimer > 0)
         {
-            SetPause(true);
-        }
-        if(Input.GetKeyDown(KeyCode.R))
-        {
-            SetPause(false);
+            revertTimer -= Time.deltaTime;
+            revertTimerOnGoing?.Invoke(revertTimer / revertDuration);
+            if (revertTimer < 0)
+            {
+                SwitchCharacter();
+            }
         }
     }
-    private void UpdateStatus(Status status)
+    private void SpawnGhost()
     {
-        this.status = status;
-        switch (status)
-        {
-            case Status.None:
-                break;
-            case Status.Started:
-                player.gameObject.SetActive(true);
-                break;
-            case Status.Running:
-                break;
-            case Status.Paused:
-                break;
-            case Status.Failed:
-                break;
-        }
-        statusUpdated?.Invoke(status);
+        ghost = Instantiate(ghost);
+        ghost.gameObject.SetActive(false);
+        followCamera.Follow = player.transform;
     }
 
     private void SpawnPlayer()
     {
-        ghostContainer = new GameObject("Ghosts").transform;
-        ghostPool = new ObjectPool<GameObject>(() =>
-        {
-            GameObject playerGhost = Instantiate(ghostPrefab, ghostContainer);
-            playerGhost.gameObject.SetActive(false);
-            return playerGhost;
-        }, (ghost) =>
-        {
-            ghost.gameObject.SetActive(true);
-            ghost.transform.position = player.transform.position;
-        }, (ghost) =>
-        {
-            ghost.gameObject.SetActive(false);
-        }, Destroy, maxSize: 10);
         player = Instantiate(player);
-        player.gameObject.SetActive(false);
-        player.died += Failed;
+        player.gameObject.SetActive(true);
+        followCamera.Follow = player.transform;
+        currentCharacterTransform = player.transform;
+        player.onHit += SwitchCharacter;
     }
 
-    public void SetPause(bool pause)
-    {
-        if (status != Status.Paused && status != Status.Running) return;
-        if (pause)
-        {
-            UpdateStatus(Status.Paused);
-        }
-        else
-        {
-            UpdateStatus(Status.Running);
-        }
-    }
-
-    public void Failed()
-    {
-        player.gameObject.SetActive(false);
-        if (activeGhosts.Count == maxConCurrentGhost)
-        {
-            ghostPool.Release(activeGhosts.Dequeue());
-        }
-        activeGhosts.Enqueue(ghostPool.Get());
-        obstacleRevealer.transform.position = player.transform.position;
-        if (obstacleRevealAnimation == null)
-        {
-            SetupObstacleRevealAnimation();
-            obstacleRevealAnimation.Play();
-        }
-        else
-        {
-            obstacleRevealAnimation.Restart();
-        }
-    }
 
     public void LoadNextLevel()
     {
@@ -152,6 +82,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         if (currentLevelIndex == levels.Length)
         {
             SceneManager.LoadScene("End");
+            return;
         }
         PlayerPrefs.SetInt("CurrentLevel", currentLevelIndex);
         Level prevLevel = levels.ElementAtOrDefault(currentLevelIndex - 1);
@@ -159,7 +90,6 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         {
             prevLevel.gameObject.SetActive(false);
         }
-        UnityEngine.Analytics.Analytics.SendEvent("levelCompleted", new Dictionary<string, object>() { { "levelCompleted", currentLevelIndex + 1 } });
         LoadCurrentLevel();
     }
 
@@ -168,24 +98,29 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         currentLevel = levels.ElementAtOrDefault(currentLevelIndex);
         currentLevel.gameObject.SetActive(false);
         currentLevel.gameObject.SetActive(true);
+        playerCameraBoundHandler.m_BoundingShape2D = currentLevel.CameraBound;
         levelLoaded?.Invoke(currentLevel);
-        UpdateStatus(Status.Started);
-        UpdateStatus(Status.Running);
     }
 
-    private void OnDestroy()
-    {
-        player.died -= Failed;
-        obstacleRevealAnimation.Kill();
-        ghostPool.Dispose();
-    }
 
-    public enum Status
+    private void SwitchCharacter()
     {
-        None,
-        Started,
-        Running,
-        Paused,
-        Failed,
+        if(currentCharacterTransform == ghost.transform)
+        {
+            ghost.gameObject.SetActive(false);
+            player.gameObject.SetActive(true);
+            player.transform.position = ghost.transform.position;
+            currentCharacterTransform = player.transform;
+            characterReverted?.Invoke();
+        }
+        else if(currentCharacterTransform ==  player.transform)
+        {
+            ghost.gameObject.SetActive(true);
+            player.gameObject.SetActive(false);
+            ghost.transform.position = player.transform.position;
+            currentCharacterTransform = ghost.transform;
+            revertTimer = revertDuration;
+        }
+        followCamera.Follow = currentCharacterTransform;
     }
 }

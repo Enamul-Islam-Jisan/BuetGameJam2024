@@ -11,8 +11,6 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     public float MoveSpeed { get; private set; } = 1f;
     [field: SerializeField, Range(0, 10)]
     public float JumpForce { get; private set; } = 1f;
-    [field: SerializeField, Range(0, 3)]
-    public int MaxConCurrentJump { get; private set; } = 1;
 
 
     [Header("Ground Check")]
@@ -29,16 +27,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     private float moveInput;
     private bool jumped = false;
     private bool isGrounded = false;
-    private int jumpCount;
-
-    public static event Action ready;
-    public event Action died;
-
+    public event Action onHit;
 
     protected override void Awake()
     {
         base.Awake();
-        ready?.Invoke();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -87,18 +80,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
     private void Jumping()
     {
-        if (MaxConCurrentJump < 0) return;
-        if (jumpCount >= MaxConCurrentJump)
-        {
-            if (!isGrounded) return;
-            jumpCount = 0;
-        }
         if (!jumped) return;
-        if (jumpCount == 0 && !isGrounded) return;
+        if (!isGrounded) return;
         Vector2 currentVelocity = rb.velocity;
         currentVelocity.y = JumpForce;
         rb.velocity = currentVelocity;
-        jumpCount++;
     }
 
     private void GetInput()
@@ -106,13 +92,15 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         moveInput = Input.GetAxisRaw("Horizontal");
         jumped = Input.GetButtonDown("Jump");
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Obstacle"))
         {
-            died?.Invoke();
+            onHit?.Invoke();
         }
     }
+
     private void OnDrawGizmosSelected()
     {
         if (groundCheck)
