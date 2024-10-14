@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
@@ -148,7 +149,10 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     public void LoadNextLevel()
     {
         currentLevelIndex++;
-        currentLevelIndex = Mathf.Clamp(currentLevelIndex, 0, levels.Length - 1);
+        if (currentLevelIndex == levels.Length)
+        {
+            SceneManager.LoadScene("End");
+        }
         PlayerPrefs.SetInt("CurrentLevel", currentLevelIndex);
         Level prevLevel = levels.ElementAtOrDefault(currentLevelIndex - 1);
         if (prevLevel && prevLevel.gameObject.activeSelf)
