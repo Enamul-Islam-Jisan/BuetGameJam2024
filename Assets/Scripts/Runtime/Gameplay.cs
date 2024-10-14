@@ -30,12 +30,19 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     {
         if(Input.GetKeyDown(KeyCode.P))
         {
+            SetPause(true);
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            SetPause(false);
+        }
+        if(Input.GetKeyDown(KeyCode.E))
+        {
             End();
         }
     }
     private void UpdateStatus(Status status)
     {
-        if (this.status == status) return;
         this.status = status;
         statusUpdated?.Invoke(status);
     }
@@ -47,7 +54,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     public void SetPause(bool pause)
     {
-        if (status != Status.Paused || status != Status.Running) return;
+        if (status != Status.Paused && status != Status.Running) return;
         if (pause)
         {
             UpdateStatus(Status.Paused);
@@ -60,14 +67,14 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     public void End()
     {
-        UpdateStatus(Status.Ended);
+        UpdateStatus(Status.Started);
     }
+
     public enum Status
     {
         None,
         Started,
         Running,
-        Paused,
-        Ended
+        Paused
     }
 }
