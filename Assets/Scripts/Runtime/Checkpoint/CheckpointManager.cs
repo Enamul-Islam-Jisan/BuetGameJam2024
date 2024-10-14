@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -12,22 +10,22 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     private int backwardSkipAmountOnFail = 0;
     [SerializeField]
     private LayerMask playerLayer;
-    private List<Checkpoint> points = new List<Checkpoint>();
     private List<Checkpoint> reachedPoints = new List<Checkpoint>();
     private PlayerController player;
     private bool isEnabled = false;
     private int currentIndex = 0;
+    private IEnumerable<Checkpoint> points;
 
     protected override void Awake()
     {
         base.Awake();
-        points = GetComponentsInChildren<Checkpoint>().ToList();
         Gameplay.statusUpdated += GameplayStatusUpdated;
         PlayerController.ready += () =>
         {
             player = PlayerController.Instance;
         };
     }
+
 
     private void Start()
     {
@@ -39,7 +37,8 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         switch (status)
         {
             case Gameplay.Status.Started:
-                GoToStart();
+                LoadCheckPoints();
+                GoToCurrent();
                 break;
             case Gameplay.Status.Running:
                 isEnabled = true;
@@ -62,20 +61,25 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     private void CheckpointDetection()
     {
         if(!isEnabled) return;
-        for (int i = currentIndex; i < points.Count; i++)
+        for (int i = currentIndex; i < points.Count(); i++)
         {
             if(i > currentIndex)
             {
                 Checkpoint lastPoint = points.ElementAtOrDefault(i - 1);
                 if (lastPoint && !lastPoint.HasReached) break;
             }
-            Checkpoint point = points[i];
+            Checkpoint point = points.ElementAt(i);
             if (point.HasReached) continue;
             bool isHit = Physics2D.CircleCast(point.transform.position, checkRadius, Vector2.zero, 1f, playerLayer);
             if(!isHit) continue;
             point.MarkReached();
             reachedPoints.Add(point);
             currentIndex = i;
+            if (i == points.Count() - 1)
+            {
+                Gameplay.Instance.LoadNextLevel();
+                break;
+            }
         }
     }
 
@@ -83,9 +87,9 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     public Checkpoint GoForward(int count)
     {
         int destinationIndex = currentIndex + count;
-        if (destinationIndex >= points.Count)
+        if (destinationIndex >= points.Count())
         {
-            destinationIndex = points.Count - 1;
+            destinationIndex = points.Count() - 1;
             if (destinationIndex == currentIndex)
                 return GoToCurrent();
         }
@@ -133,6 +137,17 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         }
         currentIndex = destinationIndex;
         return GoToCurrent();
+    }
+
+    private void LoadCheckPoints()
+    {
+        points = Gameplay.Instance.currentLevel.Points;
+        currentIndex = 0;
+    }
+
+    private void OnDestroy()
+    {
+        Gameplay.statusUpdated -= GameplayStatusUpdated;
     }
 
     private void OnGUI()

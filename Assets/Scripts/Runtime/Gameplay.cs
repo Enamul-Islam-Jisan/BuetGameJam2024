@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -20,24 +21,27 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private GameObject obstacleRevealer;
     private Sequence obstacleRevealAnimation;
     public Status status { get; private set; } = Status.None;
+    public Level currentLevel { get; private set; }
+    private Level[] levels;
+    private int currentLevelIndex;
 
-    public static event StatusUpdated statusUpdated;
+    public static event StatusUpdateCallback statusUpdated;
+    public static event LevelProgressCallback levelLoaded;
 
-    public delegate void StatusUpdated(Status status);
+    public delegate void StatusUpdateCallback(Status status);
+    public delegate void LevelProgressCallback(Level level);
 
     protected override void Awake()
     {
         base.Awake();
+        //currentLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0);
+        levels = GetComponentsInChildren<Level>(true);
     }
 
     private void Start()
     {
-        PlayerController.ready += () =>
-        {
-            UpdateStatus(Status.Started);
-            UpdateStatus(Status.Running);
-        };
         SpawnPlayer();
+        LoadCurrentLevel();
     }
 
     private void SetupObstacleRevealAnimation()
@@ -75,6 +79,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
             case Status.None:
                 break;
             case Status.Started:
+                player.gameObject.SetActive(true);
                 break;
             case Status.Running:
                 break;
@@ -103,7 +108,8 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
             ghost.gameObject.SetActive(false);
         }, Destroy, maxSize: 10);
         player = Instantiate(player);
-        player.died += End;
+        player.gameObject.SetActive(false);
+        player.died += Failed;
     }
 
     public void SetPause(bool pause)
@@ -119,10 +125,10 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         }
     }
 
-    public void End()
+    public void Failed()
     {
         player.gameObject.SetActive(false);
-        if(activeGhosts.Count == maxConCurrentGhost)
+        if (activeGhosts.Count == maxConCurrentGhost)
         {
             ghostPool.Release(activeGhosts.Dequeue());
         }
@@ -139,9 +145,33 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         }
     }
 
+    public void LoadNextLevel()
+    {
+        currentLevelIndex++;
+        currentLevelIndex = Mathf.Clamp(currentLevelIndex, 0, levels.Length - 1);
+        PlayerPrefs.SetInt("CurrentLevel", currentLevelIndex);
+        Level prevLevel = levels.ElementAtOrDefault(currentLevelIndex - 1);
+        if (prevLevel && prevLevel.gameObject.activeSelf)
+        {
+            prevLevel.gameObject.SetActive(false);
+        }
+        Debug.Log(currentLevelIndex);
+        LoadCurrentLevel();
+    }
+
+    public void LoadCurrentLevel()
+    {
+        currentLevel = levels.ElementAtOrDefault(currentLevelIndex);
+        currentLevel.gameObject.SetActive(false);
+        currentLevel.gameObject.SetActive(true);
+        levelLoaded?.Invoke(currentLevel);
+        UpdateStatus(Status.Started);
+        UpdateStatus(Status.Running);
+    }
+
     private void OnDestroy()
     {
-        player.died -= End;
+        player.died -= Failed;
         obstacleRevealAnimation.Kill();
         ghostPool.Dispose();
     }
