@@ -31,8 +31,12 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     private bool isGrounded = false;
     private int jumpCount;
 
-    private void Awake()
+    public event Action died;
+
+
+    protected override void Awake()
     {
+        base.Awake();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -100,7 +104,13 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         moveInput = Input.GetAxisRaw("Horizontal");
         jumped = Input.GetButtonDown("Jump");
     }
-
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Obstacle"))
+        {
+            
+        }
+    }
     private void OnDrawGizmosSelected()
     {
         if (groundCheck)
