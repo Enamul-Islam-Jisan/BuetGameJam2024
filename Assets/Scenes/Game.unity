@@ -440,7 +440,6 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  startSkip: 0
 --- !u!4 &537815518
 Transform:
   m_ObjectHideFlags: 0
@@ -553,7 +552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3e5a40b0e417b1499b4228b6f52016f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 5368287191552806382, guid: 5632601f01a79074486ab99c3c088014, type: 3}
+  player: {fileID: 5368287191552806382, guid: 5632601f01a79074486ab99c3c088014, type: 3}
 --- !u!4 &1179237167
 Transform:
   m_ObjectHideFlags: 0
