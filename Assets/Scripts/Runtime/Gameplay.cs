@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,9 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
     [SerializeField]
     private PlayerController player;
+    [SerializeField]
+    private GameObject obstacleRevealer;
+    private Sequence obstacleRevealAnimation;
     public Status status { get; private set; } = Status.None;
 
     public static event StatusUpdated statusUpdated;
@@ -21,10 +25,30 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     private void Start()
     {
-        SpawnPlayer(); 
-        UpdateStatus(Status.Started);
-        UpdateStatus(Status.Running);
+        PlayerController.ready += () =>
+        {
+            UpdateStatus(Status.Started);
+            UpdateStatus(Status.Running);
+        };
+        SpawnPlayer();
     }
+
+    private void SetupObstacleRevealAnimation()
+    {
+        obstacleRevealer = Instantiate(obstacleRevealer);
+        obstacleRevealer.transform.localScale = Vector3.zero;
+        obstacleRevealAnimation = DOTween.Sequence();
+        obstacleRevealAnimation.SetAutoKill(false);
+        obstacleRevealAnimation.Append(obstacleRevealer.transform.DOScale(8, 1));
+        obstacleRevealAnimation.Append(obstacleRevealer.transform.DOScale(0, 0.5f));
+        obstacleRevealAnimation.onComplete += () =>
+        {
+            UpdateStatus(Status.Failed);
+            UpdateStatus(Status.Running);
+            player.gameObject.SetActive(true);
+        };
+    }
+
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.P))
@@ -35,20 +59,30 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         {
             SetPause(false);
         }
-        if(Input.GetKeyDown(KeyCode.E))
-        {
-            End();
-        }
     }
     private void UpdateStatus(Status status)
     {
         this.status = status;
+        switch (status)
+        {
+            case Status.None:
+                break;
+            case Status.Started:
+                break;
+            case Status.Running:
+                break;
+            case Status.Paused:
+                break;
+            case Status.Failed:
+                break;
+        }
         statusUpdated?.Invoke(status);
     }
 
     private void SpawnPlayer()
     {
         player = Instantiate(player);
+        player.died += End;
     }
 
     public void SetPause(bool pause)
@@ -66,7 +100,23 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     public void End()
     {
-        UpdateStatus(Status.Started);
+        player.gameObject.SetActive(false);
+        obstacleRevealer.transform.position = player.transform.position;
+        if (obstacleRevealAnimation == null)
+        {
+            SetupObstacleRevealAnimation();
+            obstacleRevealAnimation.Play();
+        }
+        else
+        {
+            obstacleRevealAnimation.Restart();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        player.died -= End;
+        obstacleRevealAnimation.Kill();
     }
 
     public enum Status
@@ -74,6 +124,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         None,
         Started,
         Running,
-        Paused
+        Paused,
+        Failed,
     }
 }

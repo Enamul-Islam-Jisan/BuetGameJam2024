@@ -8,6 +8,8 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 {
     [SerializeField]
     private float checkRadius = 0.2f;
+    [SerializeField,Range(0,10)]
+    private int backwardSkipAmountOnFail = 0;
     [SerializeField]
     private LayerMask playerLayer;
     private List<Checkpoint> points = new List<Checkpoint>();
@@ -18,13 +20,18 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 
     protected override void Awake()
     {
-        Gameplay.statusUpdated += GameplayStatusUpdated;
         base.Awake();
         points = GetComponentsInChildren<Checkpoint>().ToList();
+        Gameplay.statusUpdated += GameplayStatusUpdated;
+        PlayerController.ready += () =>
+        {
+            player = PlayerController.Instance;
+        };
     }
 
     private void Start()
     {
+
     }
 
     private void GameplayStatusUpdated(Gameplay.Status status)
@@ -32,10 +39,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         switch (status)
         {
             case Gameplay.Status.Started:
-
-                if (!player)
-                    player = PlayerController.Instance;
-
                 GoToStart();
                 break;
             case Gameplay.Status.Running:
@@ -43,6 +46,9 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
                 break;
             case Gameplay.Status.Paused:
                 isEnabled = false;
+                break;
+            case Gameplay.Status.Failed:
+                GoBackward(backwardSkipAmountOnFail);
                 break;
         }
     }
@@ -98,6 +104,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         reachedPoints.Add(targetPoint);
         return GoToCurrent();
     }
+
     public Checkpoint GoToCurrent()
     {
         Checkpoint targetPoint = points.ElementAtOrDefault(currentIndex);

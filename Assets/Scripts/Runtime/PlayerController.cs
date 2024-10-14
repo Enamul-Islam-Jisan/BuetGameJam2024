@@ -31,12 +31,14 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     private bool isGrounded = false;
     private int jumpCount;
 
+    public static event Action ready;
     public event Action died;
 
 
     protected override void Awake()
     {
         base.Awake();
+        ready?.Invoke();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -108,7 +110,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     {
         if (collision.collider.CompareTag("Obstacle"))
         {
-            
+            died?.Invoke();
         }
     }
     private void OnDrawGizmosSelected()
