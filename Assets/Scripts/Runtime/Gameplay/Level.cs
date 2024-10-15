@@ -18,10 +18,10 @@ public class Level : MonoBehaviour
 
     private void OnDisable()
     {
-        IEnumerable<Checkpoint> reachedPoints = Points.Where(c => c.HasReached);
+        IEnumerable<Checkpoint> reachedPoints = Points.Where(c => c.IsActive);
         foreach (var point in Points)
         {
-            point.Clear();
+            point.SetActive(false);
         }
     }
 }

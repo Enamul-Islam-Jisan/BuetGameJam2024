@@ -15,7 +15,7 @@ public class Checkpoint : MonoBehaviour
     [SerializeField]
     private UnityEvent onDisable;
     [SerializeField]
-    public bool HasReached { get; private set; }
+    public bool IsActive { get; private set; }
     [SerializeField]
     private bool disableByDefault;
     public bool IsEnabled { get; private set; }
@@ -23,25 +23,22 @@ public class Checkpoint : MonoBehaviour
     {
         SetEnabled(!disableByDefault);
     }
-    internal void MarkStarting()
-    {
-        if (HasReached) return;
-        MarkReached();
-        started?.Invoke();
-    }
 
-    internal void MarkReached()
+    internal void SetActive(bool active)
     {
-        if (HasReached) return;
-        HasReached = true;
-        reached?.Invoke();
-    }
-
-    internal void Clear()
-    {
-        if (!HasReached) return;
-        HasReached = false;
-        cleared?.Invoke();
+        if (IsActive == active) return;
+        IsActive = active;
+        switch (IsActive)
+        {
+            case true:
+                name += " - Active";
+                reached?.Invoke();
+                break;
+            case false:
+                name = name.Replace(" - Active", "");
+                cleared?.Invoke();
+                break;
+        }
     }
 
     public void SetEnabled(bool enabled)

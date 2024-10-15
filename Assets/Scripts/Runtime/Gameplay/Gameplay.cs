@@ -17,6 +17,8 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private CinemachineVirtualCamera followCamera;
     [SerializeField, Range(0, 10)]
     private float revertDuration = 1.0f;
+    [SerializeField, Range(0, 10)]
+    private float revertDistance = 1.0f;
     [SerializeField]
     private UnityEvent<float> revertTimerOnGoing;
     private float revertTimer;
@@ -57,7 +59,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         {
             revertTimer -= Time.deltaTime;
 
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.R) || Vector2.Distance(player.transform.position, ghost.transform.position) >= revertDistance)
             {
                 revertTimer = 0;
             }
