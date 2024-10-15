@@ -6,8 +6,8 @@ TagManager:
   tags:
   - Ground
   - Obstacle
-  - Crypt
-  - PlayerCamera
+  - Ghost
+  - Orb
   layers:
   - Default
   - TransparentFX
@@ -47,6 +47,9 @@ TagManager:
     locked: 0
   - name: Environment
     uniqueID: 1012570725
+    locked: 0
+  - name: Interactable
+    uniqueID: 4106575471
     locked: 0
   - name: Player
     uniqueID: 1645052807
