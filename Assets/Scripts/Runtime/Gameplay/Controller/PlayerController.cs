@@ -21,11 +21,20 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     [SerializeField]
     private Transform groundCheck;
 
+    [Header("Audio")]
+    [SerializeField]
+    private AudioClip jumpClip;
+    [SerializeField]
+    private AudioClip dropClip;
+
 
     private Rigidbody2D rb;
 
     private float moveInput;
     private bool jumped = false;
+    private bool canJump = false;
+    private readonly float jumpDelay = 0.25f;
+    private float jumpTimer;
     private bool isGrounded = false;
     public event Action<Collider2D> onHit;
 
@@ -74,17 +83,37 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
     private void GroundCheck()
     {
+        bool mayPlaySound = false;
+        if (!isGrounded)
+        {
+            mayPlaySound = true;
+        }
         isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer);
+        if(isGrounded && mayPlaySound)
+        {
+            AudioSource.PlayClipAtPoint(dropClip, groundCheck.position, 0.25f);
+        }
     }
 
 
     private void Jumping()
     {
-        if (!jumped) return;
+        if(!canJump)
+        {
+            jumpTimer -= Time.deltaTime;
+            if(jumpTimer <= 0)
+            {
+                canJump = true;
+            }
+        }
+        if (!jumped || !canJump) return;
         if (!isGrounded) return;
         Vector2 currentVelocity = rb.velocity;
         currentVelocity.y = JumpForce;
         rb.velocity = currentVelocity;
+        AudioSource.PlayClipAtPoint(jumpClip, groundCheck.position);
+        canJump = false;
+        jumpTimer = jumpDelay;
     }
 
     private void GetInput()
