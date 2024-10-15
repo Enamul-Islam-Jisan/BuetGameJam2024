@@ -11,25 +11,13 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
     [field: SerializeField]
     public PlayerController player { get; private set; }
-    [SerializeField]
-    private GhostController ghost;
+    [field: SerializeField]
+    public GhostController ghost { get; private set; }
     [SerializeField]
     private CinemachineVirtualCamera followCamera;
-    [SerializeField, Range(0, 10)]
-    private float revertDuration = 1.0f;
-    [SerializeField, Range(0, 10)]
-    private float revertDistance = 1.0f;
-    [SerializeField]
-    private UnityEvent<float> revertTimerOnGoing;
-    private float revertTimer;
     private CinemachineConfiner2D playerCameraBoundHandler;
-    public Level currentLevel { get; private set; }
-    private Transform currentCharacterTransform;
-    private Level[] levels;
-    private int currentLevelIndex;
 
     public static event LevelProgressCallback levelLoaded;
-    public static event Action characterReverted;
 
     public delegate void LevelProgressCallback(Level level);
 
@@ -37,8 +25,16 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private RectTransform orbImageContainer;
     [SerializeField]
     private Image orbImagePrefab;
+    [field:SerializeField, Range(0,5)]
+    public float ghostLifetime { get; private set; }
 
     private List<Sprite> orbSprites = new List<Sprite>();
+    [SerializeField]
+    private int currentLevelIndex;
+    public Level currentLevel { get; private set; }
+    private Transform currentCharacterTransform;
+    private bool canSwitchSoul = true;
+    private Level[] levels;
 
     protected override void Awake()
     {
@@ -53,24 +49,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         SpawnGhost();
         LoadCurrentLevel();
     }
-    private void Update()
-    {
-        if (revertTimer > 0)
-        {
-            revertTimer -= Time.deltaTime;
 
-            if (Input.GetKeyDown(KeyCode.R) || Vector2.Distance(player.transform.position, ghost.transform.position) >= revertDistance)
-            {
-                revertTimer = 0;
-            }
-
-            revertTimerOnGoing?.Invoke(revertTimer / revertDuration);
-            if (revertTimer <= 0)
-            {
-                SwitchCharacter();
-            }
-        }
-    }
     private void SpawnGhost()
     {
         ghost = Instantiate(ghost);
@@ -89,10 +68,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     private void Player_OnHit(Collider2D hitCollider)
     {
-        if (hitCollider.CompareTag("Obstacle"))
-        {
-            SwitchCharacter();
-        }else if (hitCollider.CompareTag("Orb"))
+        if (hitCollider.CompareTag("Orb"))
         {
             Sprite orbSprite = hitCollider.GetComponent<SpriteRenderer>().sprite;
             AddOrb(orbSprite);
@@ -123,29 +99,6 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         currentLevel.gameObject.SetActive(true);
         playerCameraBoundHandler.m_BoundingShape2D = currentLevel.CameraBound;
         levelLoaded?.Invoke(currentLevel);
-    }
-
-
-    private void SwitchCharacter()
-    {
-        Debug.Log(currentCharacterTransform);
-        if (currentCharacterTransform == ghost.transform)
-        {
-            ghost.gameObject.SetActive(false);
-            player.gameObject.SetActive(true);
-            player.transform.position = ghost.transform.position;
-            currentCharacterTransform = player.transform;
-            characterReverted?.Invoke();
-        }
-        else if (currentCharacterTransform == player.transform)
-        {
-            player.gameObject.SetActive(false);
-            ghost.gameObject.SetActive(true);
-            ghost.transform.position = player.transform.position;
-            currentCharacterTransform = ghost.transform;
-            revertTimer = revertDuration;
-        }
-        followCamera.Follow = currentCharacterTransform;
     }
 
     private void AddOrb(Sprite sprite)

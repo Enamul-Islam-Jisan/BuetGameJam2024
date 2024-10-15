@@ -101,14 +101,6 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Obstacle"))
-        {
-            onHit?.Invoke(collision.collider);
-        }
-    }
-
     private void OnDrawGizmosSelected()
     {
         if (groundCheck)
