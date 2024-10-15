@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 476113755948044383}
   - component: {fileID: 2398927782513304117}
   m_Layer: 0
-  m_Name: BarrierTrigger
+  m_Name: CommonSwitch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,10 +72,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -188391825
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a6ae71bbbe35c074891c3ea79eb3f16a, type: 3}
+  m_Sprite: {fileID: 2061478758, guid: d515b5f9d4edabb499534d5597ea9bfe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -153,7 +153,7 @@ MonoBehaviour:
         m_MethodName: set_sprite
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 21300000, guid: 7705f64526d3a3d4dac0d1f9d5c44cd8, type: 3}
+          m_ObjectArgument: {fileID: 948786369, guid: d515b5f9d4edabb499534d5597ea9bfe, type: 3}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
