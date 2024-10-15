@@ -18,7 +18,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     {
         base.Awake();
         Gameplay.levelLoaded += LoadCheckPoints;
-        Gameplay.characterReverted += () => GoToCurrent();
     }
 
 
