@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 476113755948044383}
   - component: {fileID: 2398927782513304117}
   m_Layer: 0
-  m_Name: DoorTrigger
+  m_Name: BarrierTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2833308225898271109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.8, y: -2.27, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -98,10 +98,10 @@ CircleCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 384
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -115,12 +115,12 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.25}
   serializedVersion: 2
-  m_Radius: 0.3
+  m_Radius: 0.25
 --- !u!114 &2398927782513304117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +133,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 763f5a68c0ad4ed4f816dd10544da727, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorObject: {fileID: 2833308225898271109}
   onTrigger:
     m_PersistentCalls:
       m_Calls:

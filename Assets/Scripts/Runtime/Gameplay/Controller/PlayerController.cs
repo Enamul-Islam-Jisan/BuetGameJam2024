@@ -27,7 +27,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     private float moveInput;
     private bool jumped = false;
     private bool isGrounded = false;
-    public event Action onHit;
+    public event Action<Collider2D> onHit;
 
     protected override void Awake()
     {
@@ -93,11 +93,19 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         jumped = Input.GetButtonDown("Jump");
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Orb"))
+        {
+            onHit?.Invoke(collision);
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Obstacle"))
         {
-            onHit?.Invoke();
+            onHit?.Invoke(collision.collider);
         }
     }
 

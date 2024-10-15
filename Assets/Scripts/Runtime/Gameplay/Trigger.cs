@@ -8,9 +8,10 @@ public class Trigger : MonoBehaviour
     [SerializeField]
     private UnityEvent onTrigger;
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Ghost"))
+        Debug.Log(collision.gameObject.tag);
+        if (collision.CompareTag("Ghost") || collision.CompareTag("Player"))
         {
             onTrigger?.Invoke();
             Destroy(this);
