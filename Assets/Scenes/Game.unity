@@ -1522,7 +1522,7 @@ MonoBehaviour:
   <player>k__BackingField: {fileID: 5368287191552806382, guid: 5632601f01a79074486ab99c3c088014, type: 3}
   ghost: {fileID: 561343773702228082, guid: f82ced8ccb40a9b40a2a6c21aaeec2be, type: 3}
   followCamera: {fileID: 1386714653}
-  revertDuration: 5
+  revertDuration: 2
   revertDistance: 4
   revertTimerOnGoing:
     m_PersistentCalls:
