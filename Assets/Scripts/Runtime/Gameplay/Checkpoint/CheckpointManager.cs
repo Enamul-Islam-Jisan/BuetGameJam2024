@@ -35,7 +35,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         {
             Checkpoint point = points.ElementAt(i);
             bool isHit = Physics2D.CircleCast(point.transform.position, checkRadius, Vector2.zero, 1f, playerLayer);
-            if(!isHit || point.IsActive) continue;
+            if(!isHit || point.IsActive || !point.IsEnabled) continue;
             activatedCheckpoint = point;
             currentIndex = i;
             if (i == points.Count() - 1)
