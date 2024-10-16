@@ -8,7 +8,6 @@ TagManager:
   - SoulSwitcher
   - Ghost
   - Orb
-  - Obstacle
   layers:
   - Default
   - TransparentFX
