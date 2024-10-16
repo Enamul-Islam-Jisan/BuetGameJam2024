@@ -56,6 +56,7 @@ public class GhostController : SingletonMonoBehaviour<GhostController>
     {
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
+        moveInput = Vector2.ClampMagnitude(moveInput, 1);
     }
 
 
