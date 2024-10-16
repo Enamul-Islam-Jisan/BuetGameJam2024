@@ -39,6 +39,14 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         base.Awake();
         levels = GetComponentsInChildren<Level>(true);
         playerCameraBoundHandler = followCamera.GetComponent<CinemachineConfiner2D>();
+
+        SoulSwitcher.becameGhost += SoulSwitcher_becameGhost;
+        SoulSwitcher.becamePlayer += SoulSwitcher_becameGhost;
+    }
+
+    private void SoulSwitcher_becameGhost()
+    {
+        followCamera.Follow = SoulSwitcher.currentCharacterTransform;
     }
 
     private void Start()
@@ -104,5 +112,11 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         orbSprites.Add(sprite);
         Image orbImage = Instantiate(orbImagePrefab, orbImageContainer);
         orbImage.sprite = sprite;
+    }
+
+    private void OnDestroy()
+    {
+        SoulSwitcher.becameGhost -= SoulSwitcher_becameGhost;
+        SoulSwitcher.becamePlayer -= SoulSwitcher_becameGhost;
     }
 }
