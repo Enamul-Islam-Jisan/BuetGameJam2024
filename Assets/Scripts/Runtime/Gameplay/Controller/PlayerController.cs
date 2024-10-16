@@ -88,7 +88,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         {
             mayPlaySound = true;
         }
-        isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer) && rb.velocity.y > -2;
+        isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer) && rb.velocity.y > -4;
         if(isGrounded && mayPlaySound)
         {
             AudioSource.PlayClipAtPoint(dropClip, groundCheck.position, 0.25f);

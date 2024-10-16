@@ -109,7 +109,6 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         playerTransform = Gameplay.Instance.player.transform;
         isEnabled = true;
         GoToCurrent();
-        Gameplay.Instance.QuickLookAt(points.LastOrDefault().transform, 2,3);
     }
 
     private void OnDestroy()
