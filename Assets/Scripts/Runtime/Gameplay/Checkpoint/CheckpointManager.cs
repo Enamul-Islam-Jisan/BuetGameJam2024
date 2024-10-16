@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using UnityEngine;
+using static Cinemachine.DocumentationSortingAttribute;
 
 public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
 {
@@ -18,8 +19,8 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
     {
         base.Awake();
         Gameplay.levelLoaded += LoadCheckPoints;
-    }
 
+    }
 
     private void Update()
     {
@@ -108,6 +109,7 @@ public class CheckpointManager : SingletonMonoBehaviour<CheckpointManager>
         playerTransform = Gameplay.Instance.player.transform;
         isEnabled = true;
         GoToCurrent();
+        Gameplay.Instance.QuickLookAt(points.LastOrDefault().transform, 2,3);
     }
 
     private void OnDestroy()

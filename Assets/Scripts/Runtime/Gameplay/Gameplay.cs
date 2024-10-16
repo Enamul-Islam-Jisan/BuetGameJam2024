@@ -1,5 +1,6 @@
 using Cinemachine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,6 +16,8 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     public GhostController ghost { get; private set; }
     [SerializeField]
     private CinemachineVirtualCamera followCamera;
+    [SerializeField, Range(0, 5)]
+    private float quickLookAtTime;
     private CinemachineConfiner2D playerCameraBoundHandler;
 
     public static event LevelProgressCallback levelLoaded;
@@ -33,6 +36,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private int currentLevelIndex;
     public Level currentLevel { get; private set; }
     private Level[] levels;
+    private Coroutine quickLookAtCoroutine;
 
     protected override void Awake()
     {
@@ -113,6 +117,30 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         Image orbImage = Instantiate(orbImagePrefab, orbImageContainer);
         orbImage.sprite = sprite;
     }
+
+    public void QuickLookAt(Transform target)
+    {
+        QuickLookAt(target, 0,-1);
+    }
+
+    public void QuickLookAt(Transform target, float startDelay = 0, float overrideDuration = -1)
+    {
+        if (quickLookAtCoroutine != null)
+        {
+            StopCoroutine(quickLookAtCoroutine);
+        }
+        quickLookAtCoroutine = StartCoroutine(QuickLookAtInternal(target, startDelay, overrideDuration));
+    }
+
+
+    private IEnumerator QuickLookAtInternal(Transform target, float startDelay = 0, float overrideDuration = -1)
+    {
+        yield return new WaitForSeconds(startDelay);
+        followCamera.Follow = target;
+        yield return new WaitForSeconds(((overrideDuration == -1) ? quickLookAtTime : overrideDuration));
+        followCamera.Follow = SoulSwitcher.currentCharacterTransform;
+    }
+
 
     private void OnDestroy()
     {
