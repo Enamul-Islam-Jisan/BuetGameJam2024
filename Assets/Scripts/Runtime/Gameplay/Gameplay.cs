@@ -32,8 +32,6 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     [SerializeField]
     private int currentLevelIndex;
     public Level currentLevel { get; private set; }
-    private Transform currentCharacterTransform;
-    private bool canSwitchSoul = true;
     private Level[] levels;
 
     protected override void Awake()
@@ -62,7 +60,6 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         player = Instantiate(player);
         player.gameObject.SetActive(true);
         followCamera.Follow = player.transform;
-        currentCharacterTransform = player.transform;
         player.onHit += Player_OnHit;
     }
 
