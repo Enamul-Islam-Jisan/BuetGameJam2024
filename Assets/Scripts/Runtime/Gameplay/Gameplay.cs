@@ -60,6 +60,23 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         LoadCurrentLevel();
     }
 
+    private void Update()
+    {
+        if(/*endOfGameReached && orbSprites.Count == 5 && */Input.GetKeyDown(KeyCode.R))
+        {
+            StartCoroutine(SacrificeSoul());
+        }
+    }
+    private IEnumerator SacrificeSoul()
+    {
+        player.animator.Play("Reborn");
+        orbSprites.Clear();
+        Destroy(orbImageContainer.gameObject);
+        player.enabled = false;
+        ghost.enabled = false;
+        yield return new WaitUntil(() => !player.animator.enabled);
+        SceneManager.LoadScene("End");
+    }
     private void SpawnGhost()
     {
         ghost = Instantiate(ghost);
@@ -89,7 +106,8 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         currentLevelIndex++;
         if (currentLevelIndex == levels.Length)
         {
-            SceneManager.LoadScene("End");
+            player.enabled = false;
+            ghost.enabled = false;
             return;
         }
         Level prevLevel = levels.ElementAtOrDefault(currentLevelIndex - 1);

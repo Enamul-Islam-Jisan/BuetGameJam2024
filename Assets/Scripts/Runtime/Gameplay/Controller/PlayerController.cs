@@ -29,12 +29,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
 
     private Rigidbody2D rb;
+    public Animator animator { get; private set; }
 
     private float moveInput;
     private bool jumped = false;
-    private bool canJump = false;
-    private readonly float jumpDelay = 0.25f;
-    private float jumpTimer;
+    private bool canJump = true;
     private bool isGrounded = false;
     public event Action<Collider2D> onHit;
 
@@ -42,6 +41,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     {
         base.Awake();
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -78,42 +78,31 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         Vector2 currentVelocity = rb.velocity;
         currentVelocity.x = moveInput * MoveSpeed;
         rb.velocity = currentVelocity;
+        animator.SetBool("IsMoving", moveInput != 0);
     }
 
 
     private void GroundCheck()
     {
-        bool mayPlaySound = false;
-        if (!isGrounded)
-        {
-            mayPlaySound = true;
-        }
         isGrounded = Physics2D.CircleCast(groundCheck.position, groundCheckRadius, Vector2.zero, 1, groundLayer) && rb.velocity.y > -4;
-        if(isGrounded && mayPlaySound)
-        {
-            AudioSource.PlayClipAtPoint(dropClip, groundCheck.position, 0.25f);
-        }
+
     }
 
 
     private void Jumping()
     {
-        if(!canJump)
+        if(!canJump && isGrounded && rb.velocity.y <= 0)
         {
-            jumpTimer -= Time.deltaTime;
-            if(jumpTimer <= 0)
-            {
-                canJump = true;
-            }
+            animator.Play("Idle");
+            canJump = true;
         }
         if (!jumped || !canJump) return;
-        if (!isGrounded) return;
         Vector2 currentVelocity = rb.velocity;
         currentVelocity.y = JumpForce;
         rb.velocity = currentVelocity;
         AudioSource.PlayClipAtPoint(jumpClip, groundCheck.position);
         canJump = false;
-        jumpTimer = jumpDelay;
+        animator.Play("MidAir");
     }
 
     private void GetInput()
@@ -121,6 +110,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
         moveInput = Input.GetAxisRaw("Horizontal");
         jumped = Input.GetButtonDown("Jump");
     }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
