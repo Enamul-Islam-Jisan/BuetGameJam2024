@@ -20,4 +20,5 @@ public class Utils : SingletonMonoBehaviour<Utils>
             UnityEditor.EditorApplication.ExitPlaymode();
 #endif
     }
+
 }
