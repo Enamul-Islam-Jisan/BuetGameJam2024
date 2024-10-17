@@ -18,6 +18,10 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private CinemachineVirtualCamera followCamera;
     [SerializeField, Range(0, 5)]
     private float quickLookAtTime;
+    [field:SerializeField]
+    public AudioClip switchClip { get; private set; }
+    [field:SerializeField]
+    public AudioClip soulSwitchClip { get; private set; }
     private CinemachineConfiner2D playerCameraBoundHandler;
 
     public static event LevelProgressCallback levelLoaded;

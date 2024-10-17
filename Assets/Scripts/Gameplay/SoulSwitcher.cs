@@ -76,6 +76,7 @@ public class SoulSwitcher : MonoBehaviour
         if (current) return;
         if (currentCharacterTransform == ghost.transform) return;
         ghost.transform.position = player.transform.position;
+        AudioSource.PlayClipAtPoint(Gameplay.Instance.soulSwitchClip, Vector3.zero);
         player.gameObject.SetActive(false);
         ghost.gameObject.SetActive(true);
         current = this;
@@ -88,6 +89,7 @@ public class SoulSwitcher : MonoBehaviour
     {
         if (currentCharacterTransform == player.transform) return;
         CancelInvoke(nameof(ToPlayer));
+        AudioSource.PlayClipAtPoint(Gameplay.Instance.soulSwitchClip, Vector3.zero);
         Transform currentTransform = (currentCollided) ? currentCollided.transform : current.transform;
         Vector3 spawnPosition = currentTransform.position;
         spawnPosition.y = currentTransform.position.y + 0.25f;

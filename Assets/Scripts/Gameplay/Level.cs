@@ -27,6 +27,7 @@ public class Level : MonoBehaviour
             if (!s) continue;
             s.turnedOn += () =>
             {
+                AudioSource.PlayClipAtPoint(Gameplay.Instance.switchClip, Vector3.zero, 0.25f);
                 d.Open();
             };
         }

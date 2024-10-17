@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Door : MonoBehaviour
 {
@@ -15,8 +16,14 @@ public class Door : MonoBehaviour
 
     public void Open()
     {
-        sr.sprite = open;
+        StartCoroutine(OpenInteral());
+    }
+
+    private IEnumerator OpenInteral()
+    {
         Gameplay.Instance.QuickLookAt(transform);
+        yield return new WaitForSeconds(0.5f);
+        sr.sprite = open;
         Destroy(col);
         Destroy(this);
     }
