@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Gameplay : SingletonMonoBehaviour<Gameplay>
 {
@@ -20,6 +21,8 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private float quickLookAtTime;
     [field:SerializeField]
     public AudioClip switchClip { get; private set; }
+    [field:SerializeField]
+    public AudioClip doorClip { get; private set; }
     [field:SerializeField]
     public AudioClip soulSwitchClip { get; private set; }
     private CinemachineConfiner2D playerCameraBoundHandler;
