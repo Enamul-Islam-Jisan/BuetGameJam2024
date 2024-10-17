@@ -13,19 +13,24 @@ public class TypingEffect : MonoBehaviour
         // Store the full text that is assigned to the TextMeshPro component
         fullText = textMeshPro.text;
 
-        // Clear the text field before starting the typing effect
-        textMeshPro.text = "";
-
         // Start the typing effect
         StartCoroutine(TypeText());
     }
 
     IEnumerator TypeText()
     {
-        foreach (char letter in fullText.ToCharArray())
+        string[] textParts = fullText.Split('~');
+        foreach (string part in textParts)
         {
-            textMeshPro.text += letter;  // Add the next letter
-            yield return new WaitForSeconds(typingSpeed);  // Wait for the specified delay
+            // Clear the text field before starting the typing effect
+            textMeshPro.text = "";
+
+            foreach (char letter in part.ToCharArray())
+            {
+                textMeshPro.text += letter;  // Add the next letter
+                yield return new WaitForSeconds(typingSpeed);  // Wait for the specified delay
+            }
+            yield return new WaitForSeconds(.25f);
         }
     }
 }
