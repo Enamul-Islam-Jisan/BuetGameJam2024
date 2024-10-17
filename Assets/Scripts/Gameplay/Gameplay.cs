@@ -33,7 +33,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     [SerializeField]
     private Image orbImagePrefab;
     [SerializeField]
-    private PanelNavigator screenNavigator;
+    private RectTransform soulSwitchKeyIndicator;
 
     [field:SerializeField, Range(0,5)]
     public float ghostLifetime { get; private set; }
@@ -67,6 +67,12 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         SpawnPlayer();
         SpawnGhost();
         LoadCurrentLevel();
+    }
+
+    private void Update()
+    {
+
+        soulSwitchKeyIndicator.gameObject.SetActive(SoulSwitcher.currentCollided || (SoulSwitcher.currentCharacterTransform && SoulSwitcher.currentCharacterTransform == ghost.transform));
     }
 
     private void SpawnGhost()
