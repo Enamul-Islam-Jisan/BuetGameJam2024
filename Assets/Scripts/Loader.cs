@@ -25,6 +25,8 @@ public class Loader : MonoBehaviour
     public static event Action loadingStarted;
     public static event Action<float> loadingOngoing;
     public static event Action loadingEnded;
+    private static AsyncOperationHandle<SceneInstance> loadedSceneHandle;
+    private static bool initializationDone = false;
 
     private void Awake()
     {
@@ -42,17 +44,32 @@ public class Loader : MonoBehaviour
 
     private IEnumerator BeginInternal()
     {
+        transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
         if (transition)
             yield return transition.DoOut();
+        foreach(GameObject go in SceneManager.GetActiveScene().GetRootGameObjects())
+        {
+            go.SetActive(false);
+        }
         loadingStarted?.Invoke();
         if (!string.IsNullOrEmpty(loaderSceneName))
         {
+
             AsyncOperationHandle<SceneInstance> loadingSceneHandle = Addressables.LoadSceneAsync(loaderSceneName, LoadSceneMode.Additive, true);
+
             yield return loadingSceneHandle;
+
+            if (initializationDone && loadedSceneHandle.IsValid() && initializationDone)
+            {
+                AsyncOperationHandle<SceneInstance> unloadingSceneHandle = Addressables.UnloadSceneAsync(loadedSceneHandle.Result);
+                yield return unloadingSceneHandle;
+            }
+
             if (transition)
                 yield return transition.DoIn();
-            var loadedSceneHandle = Addressables.LoadSceneAsync(targetSceneName, LoadSceneMode.Single, false);
+
+            loadedSceneHandle = Addressables.LoadSceneAsync(targetSceneName, LoadSceneMode.Single, false);
             yield return new WaitForSeconds(manualDelay);
             do
             {
@@ -67,7 +84,13 @@ public class Loader : MonoBehaviour
         }
         else
         {
-            var loadedSceneHandle = Addressables.LoadSceneAsync(targetSceneName, LoadSceneMode.Single, false);
+            if (loadedSceneHandle.IsValid() && loadedSceneHandle.IsDone && initializationDone)
+            {
+                AsyncOperationHandle<SceneInstance> unloadingSceneHandle = Addressables.UnloadSceneAsync(loadedSceneHandle.Result, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                yield return unloadingSceneHandle;
+            }
+
+            loadedSceneHandle = Addressables.LoadSceneAsync(targetSceneName, LoadSceneMode.Single, false);
             yield return new WaitForSeconds(manualDelay);
             do
             {
@@ -79,6 +102,10 @@ public class Loader : MonoBehaviour
                 yield return transition.DoIn();
         }
         loadingEnded?.Invoke();
+        if (!initializationDone)
+        {
+            initializationDone = true;
+        }
         Destroy(gameObject);
     }
 

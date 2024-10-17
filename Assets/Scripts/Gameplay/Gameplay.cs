@@ -18,6 +18,10 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     private CinemachineVirtualCamera followCamera;
     [SerializeField, Range(0, 5)]
     private float quickLookAtTime;
+    [field:SerializeField]
+    public AudioClip switchClip { get; private set; }
+    [field:SerializeField]
+    public AudioClip soulSwitchClip { get; private set; }
     private CinemachineConfiner2D playerCameraBoundHandler;
 
     public static event LevelProgressCallback levelLoaded;
@@ -29,7 +33,7 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
     [SerializeField]
     private Image orbImagePrefab;
     [SerializeField]
-    private PanelNavigator screenNavigator;
+    private RectTransform soulSwitchKeyIndicator;
 
     [field:SerializeField, Range(0,5)]
     public float ghostLifetime { get; private set; }
@@ -63,6 +67,11 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
         SpawnPlayer();
         SpawnGhost();
         LoadCurrentLevel();
+    }
+
+    private void Update()
+    {
+        soulSwitchKeyIndicator.gameObject.SetActive(SoulSwitcher.currentCollided || (SoulSwitcher.currentCharacterTransform && SoulSwitcher.currentCharacterTransform == ghost.transform));
     }
 
     private void SpawnGhost()

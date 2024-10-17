@@ -1,0 +1,63 @@
+
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+#unity-container {
+    position: absolute;
+}
+
+#unity-container.unity-desktop {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+}
+
+#unity-container.unity-mobile {
+    width: 100%;
+    height: 100%
+}
+
+#unity-canvas {
+    background: #1d2921;
+}
+
+.unity-mobile #unity-canvas {
+    width: 100vw;
+    height: 100vh
+}
+
+#unity-loading-bar {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+#unity-logo {
+    width: 130px;
+    height: 130px;
+    background: url('./startup-logo.png') no-repeat center;
+    margin: 10px;
+}
+
+#unity-progress-bar-empty {
+    width: 141px;
+    height: 18px;
+    margin-top: 10px;
+    margin-left: 6.5px;
+    background: #ffffff00 no-repeat center;
+    border: 3px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#unity-progress-bar-full {
+    width: 0%;
+    height: 100%;
+    background: white no-repeat center;
+    border-radius: 1000px;
+}
