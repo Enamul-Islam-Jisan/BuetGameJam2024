@@ -71,7 +71,6 @@ public class Gameplay : SingletonMonoBehaviour<Gameplay>
 
     private void Update()
     {
-
         soulSwitchKeyIndicator.gameObject.SetActive(SoulSwitcher.currentCollided || (SoulSwitcher.currentCharacterTransform && SoulSwitcher.currentCharacterTransform == ghost.transform));
     }
 
